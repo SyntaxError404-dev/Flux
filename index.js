@@ -1,22 +1,42 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
-
 const app = express();
 const port = 3000;
 
 app.use(cors());
 
-app.get('/ques', async (req, res) => {
+app.get('/generate', async (req, res) => {
   try {
-    const t = req.query.t
-    const response = await axios.get(`https://sandipbaruwal.onrender.com/fluxdev?prompt=${t}&ratio=${ratio}`);
+    const { prompt, ratio } = req.query;
 
-    res.json(response.data.answer);
+    if (!prompt) {
+      return res.status(400).json({ error: 'Prompt is required' });
+    }
+
+    const ratioMapping = {
+      "1": "1:1",
+      "2": "16:9",
+      "3": "4:3"
+    };
+
+    const selectedRatio = ratioMapping[ratio] || "1:1";
+
+    const response = await axios({
+      method: 'get',
+      url: `https://sandipbaruwal.onrender.com/fluxdev?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(selectedRatio)}`,
+      responseType: 'arraybuffer'
+    });
+
+    res.set('Content-Type', 'image/jpeg');
+    res.send(Buffer.from(response.data, 'binary'));
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Error fetching data from the API' });
+    console.error('Error generating image:', error);
+    res.status(500).json({ error: 'Error generating image' });
   }
 });
 
-app.listen(port, () => {});
+app.listen(port, () => {
+  console.log(`Server listening at http://localhost:${port}`);
+});
