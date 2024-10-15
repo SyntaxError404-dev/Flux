@@ -14,17 +14,9 @@ app.get('/generate', async (req, res) => {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    const ratioMapping = {
-      "1": "1:1",
-      "2": "16:9",
-      "3": "4:3"
-    };
-
-    const selectedRatio = ratioMapping[ratio] || "1:1";
-
     const response = await axios({
       method: 'get',
-      url: `https://sandipbaruwal.onrender.com/fluxdev?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(selectedRatio)}`,
+      url: `https://sandipbaruwal.onrender.com/fluxdev?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(ratio)}`,
       responseType: 'arraybuffer'
     });
 
