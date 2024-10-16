@@ -16,7 +16,7 @@ app.get('/generate', async (req, res) => {
 
     const response = await axios({
       method: 'get',
-      url: `https://sandipbaruwal.onrender.com/fluxdev?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(ratio)}`,
+      url: `https://smfahim.xyz/flux2?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(ratio)}`,
       responseType: 'arraybuffer'
     });
 
