@@ -8,15 +8,28 @@ app.use(cors());
 
 app.get('/generate', async (req, res) => {
   try {
-    const { prompt, ratio } = req.query;
+    const { prompt } = req.query;
+    let { ratio } = req.query;
 
     if (!prompt) {
       return res.status(400).json({ error: 'Prompt is required' });
     }
 
+    if (!ratio) {
+      ratio = "1";
+    }
+
+    const ratioMapping = {
+      "1": "1:1",
+      "2": "4:14",
+      "3": "16:9"
+    };
+
+    const selectedRatio = ratioMapping[ratio] || ratioMapping["1"];
+
     const response = await axios({
       method: 'get',
-      url: `https://smfahim.xyz/flux2?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(ratio)}`,
+      url: `https://smfahim.xyz/flux2?prompt=${encodeURIComponent(prompt)}&ratio=${encodeURIComponent(selectedRatio)}`,
       responseType: 'arraybuffer'
     });
 
