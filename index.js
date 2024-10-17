@@ -1,17 +1,30 @@
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
+const winston = require('winston');
+require('dotenv').config();
+
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 app.use(cors());
+
+const logger = winston.createLogger({
+  level: 'info',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: 'error.log', level: 'error' })
+  ]
+});
 
 app.get('/generate', async (req, res) => {
   try {
     const { prompt, ratio } = req.query;
 
     if (!prompt) {
-      return res.status(400).json({ error: 'Prompt is required' });
+      logger.warn('Prompt is missing in request');
+      return res.status(400).json({ error: '📝 Prompt is required. Please provide a prompt to generate an image.' });
     }
 
     const response = await axios({
@@ -24,11 +37,14 @@ app.get('/generate', async (req, res) => {
     res.send(Buffer.from(response.data, 'binary'));
 
   } catch (error) {
-    console.error('Error generating image:', error);
-    res.status(500).json({ error: 'Error generating image' });
+    logger.error('Error generating image:', error);
+    res.status(500).json({
+      error: '⚠️ Oops! There was an error generating the image. Please try again later.',
+      contact: '📞 If the problem persists, reach out to the API author: https://www.facebook.com/nehal143meta?mibextid=ZbWKwL'
+    });
   }
 });
 
 app.listen(port, () => {
-  console.log(`Server listening at http://localhost:${port}`);
+  logger.info(`🚀 Server running at http://localhost:${port}`);
 });
